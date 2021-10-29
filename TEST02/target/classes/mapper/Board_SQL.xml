@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.kr.board.service.mapper.BoardMapper">
+	
+	<select id="list" resultType="co.kr.board.VO.BoardVO">
+		<![CDATA[
+			SELECT * FROM
+				(SELECT ROW_NUMBER() OVER(order by board_no desc) rn,
+																  board_no,
+																  user_nick,
+																  board_title,
+																  board_content,
+																  board_day,
+																  board_view,
+																  board_type
+				FROM    TEST_board2,TEST_user2
+				WHERE   TEST_board2.user_no = TEST_user2.user_no
+		]]>
+			<if test="keywrod != null and keyword != ''">
+				AND #{keyword} LIKE '%'||${type}||'%'
+			</if>
+		<![CDATA[
+			)a
+			WHERE a.rn > #{startRn}
+			AND   a.rn <= #{endRn}
+		]]>
+	</select>
+
+	<select id="total" resultType="int">
+		SELECT COUNT(*)
+		FROM   TEST_board2
+			<if test="keyword != null and keyword != ''">
+				WHERE #{keyword} LIKE '%'||${type}||'%'
+			</if>
+	</select>
+</mapper>
